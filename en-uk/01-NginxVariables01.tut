@@ -1,15 +1,23 @@
 = Nginx Variables (01) =
 
-Nginx's configuration is itself a mini language. Many Nginx configurations are practically programs. The
-language might not be Turing-Complete, as far as I can see, but its design is heavily influenced by Perl and
-Bourne Shell. This is a characteristic feature of Nginx when compared to the other web servers such as Apache
-or Lighttpd. Being a language, "Variable" declaration becomes a common concept (ignoring some exceptions to
+Nginx's configuration is itself a mini language. Many Nginx configurations
+are practically programs. The
+language might not be Turing-Complete, as far as I can see, but its design
+is heavily influenced by Perl and
+Bourne Shell. This is a characteristic feature of Nginx when compared to
+the other web servers such as Apache
+or Lighttpd. Being a language, "Variable" declaration becomes a common
+concept (ignoring some exceptions to
 this rule such as Functional Languages like Haskell).
 
-As those familiar with imperative languages such as Perl, Bourne Shell or C/C++ will already know, a variable
-is nothing more than a container for holding various values. The value can be a number like C<3.14> or a string
-like C<hello world>. Values can also hold references to things as complicated as arrays or hash tables too.
-However, in an Nginx configuration, variables are restricted to contain one and only one type of value:
+As those familiar with imperative languages such as Perl, Bourne Shell
+or C/C++ will already know, a variable
+is nothing more than a container for holding various values. The value
+can be a number like C<3.14> or a string
+like C<hello world>. Values can also hold references to things as complicated
+as arrays or hash tables too.
+However, in an Nginx configuration, variables are restricted to contain
+one and only one type of value:
 strings.
 
 For example, our F<nginx.conf> may have the following variable declaration:
@@ -17,19 +25,25 @@ For example, our F<nginx.conf> may have the following variable declaration:
     :nginx
     set $a "hello world";
 
-We have used the built-in L<ngx_rewrite> module's L<ngx_rewrite/set> command to declare and initialize the
-variable C<$a>. Specifically, it is assigned the string C<hello world>. Like Perl and PHP, the Nginx syntax
+We have used the built-in L<ngx_rewrite> module's L<ngx_rewrite/set> command
+to declare and initialize the
+variable C<$a>. Specifically, it is assigned the string C<hello world>.
+Like Perl and PHP, the Nginx syntax
 requires the prefix C<$> when declaring and devaluing variables.
 
-Many C<Java> and C<C#> programmers dislike the ugly C<$> variable prefix, yet the approach does have a few
-advantages. Notably, variables can be embedded directly in a string to construct another string:
+Many C<Java> and C<C#> programmers dislike the ugly C<$> variable prefix,
+yet the approach does have a few
+advantages. Notably, variables can be embedded directly in a string to
+construct another string:
 
     :nginx
     set $a hello;
     set $b "$a, $a";
 
-In this case, we are using the Nginx variable C<$a>, to construct variable C<$b>. Now C<$a> is C<hello>, and
-C<$b> is C<hello, hello>. The technique is called "variable interpolation", and is a commonly used feature in
+In this case, we are using the Nginx variable C<$a>, to construct variable
+C<$b>. Now C<$a> is C<hello>, and
+C<$b> is C<hello, hello>. The technique is called "variable interpolation"
+, and is a commonly used feature in
 Perl. It effectively executes the string concatenation.
 
 Let's have a look at another example:
@@ -44,25 +58,35 @@ Let's have a look at another example:
         }
     }
 
-This example utilizes the outer C<http> directive and C<events> directive in F<nginx.conf>. With the HTTP
-client utility C<curl>, we can issue a HTTP request to C</test> from the command line and obtain the
+Please note, this example omits the outer C<http> directive and C<events>
+directive
+in F<nginx.conf>. With the HTTP
+client utility C<curl>, we can issue a HTTP request to C</test> from the
+command line and obtain the
 following result:
 
     :bash
     $ curl 'http://localhost:8080/test'
     foo: hello
 
-Here we use the 3rd party module L<ngx_echo> and its command L<ngx_echo/echo> to print the value of variable
+Here we use the 3rd party module L<ngx_echo> and its command L<ngx_echo/echo>
+to print the value of variable
 C<$foo> as a HTTP response.
 
-We can assert that L<ngx_echo/echo> supports "variable interpolation", yet we must not take it for granted in
-all cases, since not all variable commands support "variable interpolation", and it is in fact dependent on
+We can assert that L<ngx_echo/echo> supports "variable interpolation",
+yet we must not take it for granted in
+all cases, since not all variable commands support "variable interpolation"
+, and it is in fact dependent on
 the module's implementation.
 
-So, you may ask, is there any way to escape C<$> so that it is no more than a typical dollar sign when using
-L<ngx_echo/echo>? The simple answer is: no, you can't. (This answer still holds in the latest Nginx stable release
-C<1.0.10> ). However, there luckily exist other module commands which can be used to designate the C<$> value
-as a Nginx variable, allowing us to get around this limitation and use it as a variable in L<ngx_echo/echo>. 
+So, you may ask, is there any way to escape C<$> so that it is no more
+than a typical dollar sign when using
+L<ngx_echo/echo>? The simple answer is: no, you can't. (This answer still
+holds in the latest Nginx stable release
+C<1.0.10> ). However, there luckily exist other module commands which can
+be used to designate the C<$> value
+as a Nginx variable, allowing us to get around this limitation and use
+it as a variable in L<ngx_echo/echo>.
 For example:
 
     :nginx
@@ -84,15 +108,22 @@ Testing this configuration results in the following:
     $ curl 'http://localhost:8080/test'
     This is a dollar sign: $
 
-The built-in module L<ngx_geo>, and its command L<ngx_geo/geo>, are used to initialize variable C<$dollar>
-with the string C<"$">, thereafter allowing variable C<$dollar> to be used in circumstances requiring a dollar
-sign. Actually, the typical scenario in which L<ngx_geo> is applied, is to assign an Nginx variable to take into
-account the request client's IP addresses. However, for the above specific example, it is used to initialize the
+The built-in module L<ngx_geo>, and its command L<ngx_geo/geo>, are used
+to initialize variable C<$dollar>
+with the string C<"$">, thereafter allowing variable C<$dollar> to be used
+in circumstances requiring a dollar
+sign. Actually, the typical scenario in which L<ngx_geo> is applied, is
+to assign an Nginx variable to take into
+account the request client's IP addresses. However, for the above specific
+example, it is used to initialize the
 C<$dollar> variable with the dollar sign string unconditionally.
 
-A warning: "variable interpolation" has a special case where the variable name itself cannot be delimited from
-the rest of the string (such as when the variable needs to be combined with a letter, digit or underscore). 
-Hence, a special syntax is needed to handle this case, as in the following example:
+A warning: "variable interpolation" has a special case where the variable
+name itself cannot be delimited from
+the rest of the string (such as when the variable needs to be combined
+with a letter, digit or underscore).
+Hence, a special syntax is needed to handle this case, as in the following
+example:
 
     :nginx
     server {
@@ -104,19 +135,27 @@ Hence, a special syntax is needed to handle this case, as in the following examp
         }
     }
 
-In this example, variable C<$first> is concatenated with C<world>. If it is written directly as
-C<"$firstworld">, Nginx's variable interpolation tries to devalue variable C<$firstworld> instead of
-C<$first>. To fix this problem, curly brackets can be used together with C<$>, for example C<${first}>,
-to surround and delimit the variable. Thus, running the above example has following result:
+In this example, variable C<$first> is concatenated with C<world>. If it
+is written directly as
+C<"$firstworld">, Nginx's variable interpolation tries to devalue variable
+C<$firstworld> instead of
+C<$first>. To fix this problem, curly brackets can be used together with
+C<$>, for example C<${first}>,
+to surround and delimit the variable. Thus, running the above example has
+following result:
 
     :bash
     $ curl 'http://localhost:8080/test
     hello world
 
-Command L<ngx_rewrite/set> (and Command L<ngx_geo/geo>) not only initialize a variable, they effectively
-declare the variable first, too. That is to say, if the variable is not declared yet, it is declared automatically
-then initialized. In the example, if variable C<$a> is not declared, C<set> declares the variable at first
-hand. If variables are not declared, Nginx cannot devalue them, such as in the following example:
+Command L<ngx_rewrite/set> (and Command L<ngx_geo/geo>) not only initialize
+a variable, they effectively
+declare the variable first, too. That is to say, if the variable is not
+declared yet, it is declared automatically
+then initialized. In the example, if variable C<$a> is not declared, C<set>
+declares the variable at first
+hand. If variables are not declared, Nginx cannot devalue them, such as
+in the following example:
 
     :nginx
     ? server {
@@ -133,14 +172,20 @@ Nginx aborts loading the configuration file:
 
 Yes, the server cannot even be started!
 
-More importantly, Nginx variable declaration and initialization happens at different phases in the timeline.
-Variable declaration only occurs when Nginx loads its configuration, in other words, when Nginx is started.
-On the other hand, variable initialization occurs when an actual request is being handled. Consequently, the
-server will fail in the bootstrap phase if a variable is not declared and, furthermore, new Nginx variables
+More importantly, Nginx variable declaration and initialization happens
+at different phases in the timeline.
+Variable declaration only occurs when Nginx loads its configuration, in
+other words, when Nginx is started.
+On the other hand, variable initialization occurs when an actual request
+is being handled. Consequently, the
+server will fail in the bootstrap phase if a variable is not declared and,
+furthermore, new Nginx variables
 cannot be declared dynamically at run time.
 
-As soon as a variable is declared in Nginx, its scope is the entire configuration, regardless of the location
-it is referenced, even for different virtual server directives. Here is an example:
+As soon as a variable is declared in Nginx, its scope is the entire configuration,
+regardless of the location
+it is referenced, even for different virtual server directives. Here is
+an example:
 
     :nginx
     server {
@@ -156,8 +201,10 @@ it is referenced, even for different virtual server directives. Here is an examp
         }
     }
 
-Variable C<$foo> is declared by command C<set> within C<location /bar>, as variable visibility is the entire
-configuration. It can be referenced in C<location /foo> without causing any error. The following shows the
+Variable C<$foo> is declared by command C<set> within C<location /bar>,
+as variable visibility is the entire
+configuration. It can be referenced in C<location /foo> without causing
+any error. The following shows the
 location outcomes respectively:
 
     :bash
@@ -170,14 +217,21 @@ location outcomes respectively:
     $ curl 'http://localhost:8080/foo'
     foo = []
 
-As we can see, command C<set> is executed within C<location /bar>, so the variable is only initialized when
-C</bar> is requested. If C</foo> is requested directly, variable C<$foo> has an empty value. The default
+As we can see, command C<set> is executed within C<location /bar>, so the
+variable is only initialized when
+C</bar> is requested. If C</foo> is requested directly, variable C<$foo>
+has an empty value. The default
 value is an empty string if an Nginx variable is not initialized.
 
-This example demonstrates another important point about Nginx variables: although variable scope is the entire configuration,
-every request has its own instance of the declared variables. Looking at the example, we can see the effects of this:
-variable C<$foo> is initialized with value C<32> when C</bar> is requested, but remains empty in the subsequent request to C</foo>.
+This example demonstrates another important point about Nginx variables:
+although variable scope is the entire configuration,
+every request has its own instance of the declared variables. Looking at
+the example, we can see the effects of this:
+variable C<$foo> is initialized with value C<32> when C</bar> is requested,
+but remains empty in the subsequent request to C</foo>.
 
-This is a common pitfall which may cause many Nginx newbies to stumble: thinking of Nginx variables as "global
-variables", or believing that configuration settings are shared for the entire server life time. In fact, variables
+This is a common pitfall which may cause many Nginx newbies to stumble:
+thinking of Nginx variables as "global
+variables", or believing that configuration settings are shared for the
+entire server life time. In fact, variables
 cannot last in between different requests.
