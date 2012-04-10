@@ -1,26 +1,26 @@
 = Nginx Variables (07) =
 
-We have learnt in L<vartut/ (01)>, that Nginx variables could only
-be strings. We are in fact, not entirely correct because variables
+We have learnt in L<vartut/ (01)>, that Nginx variables can only
+be strings. This is in fact not entirely correct because variables
 can have non-values. There are 2 kinds of non-values in Nginx, one
-is "invalid" value, another is "not found" value.
+is the "invalid" value, another is the "not found" value.
 
 For example, if Nginx variable C<$foo> is declared but not initialized
 it has an "invalid" value. Whereas if there exists no C<XXX> parameter
-in the current request URL, builtin variable C<$arg_XXX> has a "not found"
+in the current request URL, the built-in variable C<$arg_XXX> has a "not found"
 value.
 
-Nginx special values, such as "invalid" value or "not found" value, are
+Nginx special values, such as the "invalid" value or the "not found" value, are
 totally different from empty string (""). Like C<undefined> and C<null>
 found in JavaScript, or C<nil> found in Lua, these non-values are not
-numerical value C<0>, they are not boolean value C<false> either. In fact
+the numerical value C<0>, they are not the boolean value C<false> either. In fact
 the C<NULL> found in SQL is an equivalent element.
 
-Although back in L<vartut/ (01)>, the uninitialized value becomes empty
-string in "variable interpolation" via command L<ngx_rewrite/set>. This
+However, recall that back in L<vartut/ (01)>, the uninitialized value became an empty
+string in "variable interpolation" when the L<ngx_rewrite/set> command was called. This
 is
 because L<ngx_rewrite/set> hooks a "get handler" for the variable it declares,
-and the handler turns "invalid" value into empty string. Let's review the
+and the handler turns the "invalid" value into an empty string. Let's review the
 example in L<vartut/ (01)> for this assertion:
 
     :nginx
@@ -38,7 +38,7 @@ command L<ngx_rewrite/set> implicitly declares variable C<$foo> within
 C<location /bar>
 Then we print the uninitialized C<$foo> within C<location /foo> by using
 command
-L<ngx_echo/echo>. The result is following when C<location /foo> was requested:
+L<ngx_echo/echo>. The result is the following when C<location /foo> is requested:
 
     :bash
     $ curl 'http://localhost:8080/foo'
